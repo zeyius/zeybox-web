@@ -1,16 +1,28 @@
 import { Link, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 export default function SiteLayout() {
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+    });
+
+    return () => sub.subscription.unsubscribe();
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
-      {/* Announcement bar */}
       <div className="w-full bg-black text-white text-sm">
         <div className="max-w-7xl mx-auto px-4 py-2 text-center">
           🎁 Unique QR voucher • 365 days validity • Algeria-wide partners
         </div>
       </div>
 
-      {/* Header / Navbar */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
@@ -18,7 +30,6 @@ export default function SiteLayout() {
             <span className="text-xl font-bold tracking-tight">ZEYBOX</span>
           </Link>
 
-          {/* Search (UI only for now) */}
           <div className="hidden md:flex flex-1">
             <div className="w-full max-w-xl relative">
               <input
@@ -50,12 +61,22 @@ export default function SiteLayout() {
             >
               I have a voucher
             </Link>
-            <Link
-              to="/login"
-              className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium hover:bg-gray-800"
-            >
-              Login
-            </Link>
+
+            {session ? (
+              <Link
+                to="/account"
+                className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium hover:bg-gray-800"
+              >
+                Account
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="px-4 py-2 rounded-xl bg-black text-white text-sm font-medium hover:bg-gray-800"
+              >
+                Login
+              </Link>
+            )}
           </div>
         </div>
 
