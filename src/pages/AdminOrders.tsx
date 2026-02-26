@@ -10,6 +10,7 @@ type Order = {
   recipient_email: string | null;
   payment_reference: string | null;
   created_at: string;
+  vouchers?: { count: number }[];
 };
 
 export default function AdminOrders() {
@@ -21,8 +22,8 @@ export default function AdminOrders() {
     const { data, error } = await supabase
       .from("orders")
       .select(
-        "id,status,payment_method,total_dzd,buyer_email,recipient_email,payment_reference,created_at"
-      )
+         "id,status,payment_method,total_dzd,buyer_email,recipient_email,payment_reference,created_at, vouchers(count)"
+        )
       .order("created_at", { ascending: false });
 
     if (error) console.error(error);
@@ -76,7 +77,7 @@ export default function AdminOrders() {
                         onClick={async () => {
                             const { error } = await supabase.rpc(
                             "mark_order_paid_create_vouchers",
-                            { order_id: o.id }
+                            { p_order_id: o.id }
                             );
 
                             if (error) {
