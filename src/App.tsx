@@ -7,6 +7,8 @@ import Enterprise from "./pages/Enterprise";
 import Voucher from "./pages/Voucher";
 import Login from "./pages/Login";
 import BoxDetails from "./pages/BoxDetails";
+import Account from "./pages/Account";
+import AdminOrders from "./pages/AdminOrders";
 
 
 export default function App() {
@@ -15,6 +17,8 @@ export default function App() {
       <Route element={<SiteLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/best-sellers" element={<BestSellers />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/account" element={<Account />} />
         <Route path="/box/:id" element={<BoxDetails />} />
         <Route path="/gift-ideas" element={<GiftIdeas />} />
         <Route path="/enterprise" element={<Enterprise />} />
