@@ -1,3 +1,61 @@
 @import "tailwindcss";
 
-html, body, #root { height: 100%; }
+/* 1. Base Layout */
+html, body, #root { 
+  height: 100%; 
+}
+
+/* 2. 3D & Carousel Animations */
+@keyframes carousel-3d {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+@keyframes counter-spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(-360deg); }
+}
+
+.animate-carousel-3d {
+  animation: carousel-3d 25s linear infinite;
+  transform-style: preserve-3d;
+}
+
+.animate-counter-spin {
+  animation: counter-spin 25s linear infinite;
+}
+
+/* 3. Floating & Hover Animations */
+@keyframes wonderFloat {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  50% { 
+    transform: translateY(-20px) rotate(2deg); 
+  }
+}
+
+.animate-wonder-box {
+  animation: wonderFloat 4s ease-in-out infinite;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15));
+}
+
+/* Standard float for simpler elements */
+.animate-float { 
+  animation: wonderFloat 4s ease-in-out infinite; 
+}
+
+/* 4. Utility Classes */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.snap-x {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}

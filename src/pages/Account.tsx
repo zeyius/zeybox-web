@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom"; // Added Link
 import { supabase } from "../lib/supabaseClient";
+import { useTranslation } from "react-i18next"; // Added i18n
 
 type Profile = {
   user_id: string;
@@ -10,6 +11,7 @@ type Profile = {
 };
 
 export default function Account() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [email, setEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -18,7 +20,6 @@ export default function Account() {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-
       const { data: authData } = await supabase.auth.getUser();
       const user = authData.user;
 
@@ -50,44 +51,48 @@ export default function Account() {
 
   return (
     <main className="max-w-4xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold">Account</h1>
+      <h1 className="text-3xl font-bold">{t('account_title')}</h1>
 
       {loading ? (
-        <p className="mt-6 text-gray-600">Loading...</p>
+        <p className="mt-6 text-gray-600">{i18n.language === 'en' ? 'Loading...' : 'جارِ التحميل...'}</p>
       ) : (
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="rounded-3xl border border-gray-200 p-6">
-            <div className="text-sm text-gray-500">Signed in as</div>
+            <div className="text-sm text-gray-500">{t('signed_in_as')}</div>
             <div className="mt-1 font-semibold">{email ?? "—"}</div>
 
-            <div className="mt-6 text-sm text-gray-500">Profile</div>
+            <div className="mt-6 text-sm text-gray-500">{i18n.language === 'en' ? 'Profile' : 'الملف الشخصي'}</div>
             <div className="mt-1">
               <div>
-                <span className="text-gray-500">Name: </span>
+                <span className="text-gray-500">{t('label_full_name')}: </span>
                 <span className="font-medium">{profile?.full_name || "—"}</span>
               </div>
               <div className="mt-1">
-                <span className="text-gray-500">Role: </span>
+                <span className="text-gray-500">{t('profile_role')}: </span>
                 <span className="font-medium">{profile?.role || "—"}</span>
               </div>
             </div>
 
             <button
               onClick={logout}
-              className="mt-6 w-full px-4 py-3 rounded-xl bg-black text-white font-semibold hover:bg-gray-800"
+              className="mt-6 w-full px-4 py-3 rounded-xl bg-black text-white font-semibold hover:bg-red-600 transition-colors"
             >
-              Logout
+              {t('btn_logout')}
             </button>
           </div>
 
           <div className="rounded-3xl border border-gray-200 p-6">
-            <div className="font-semibold">My vouchers</div>
+            <div className="font-semibold">{i18n.language === 'en' ? 'My vouchers' : 'قسائمي'}</div>
             <p className="mt-2 text-sm text-gray-600">
-                Vouchers linked to your account will appear here.
+                {i18n.language === 'en' 
+                  ? "Vouchers linked to your account will appear here." 
+                  : "ستظهر القسائم المرتبطة بحسابك هنا."}
             </p>
 
             <div className="mt-4 rounded-2xl bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700">
-                Coming next: we’ll link vouchers to the logged-in user when an order is created.
+                <Link to="/best-sellers" className="text-red-600 font-bold hover:underline">
+                  {i18n.language === 'en' ? "Browse collections →" : "تصفح المجموعات ←"}
+                </Link>
             </div>
             </div>
         </div>
