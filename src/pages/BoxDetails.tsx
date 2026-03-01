@@ -31,11 +31,11 @@ export default function BoxDetails() {
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
 
-  // Guest checkout UI state
+  // Guest checkout UI state - UPDATED to include recipientEmail
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [buyerEmail, setBuyerEmail] = useState("");
   const [buyerName, setBuyerName] = useState("");
-  const [recipientEmail, setRecipientEmail] = useState("");
+  const [recipientEmail, setRecipientEmail] = useState(""); // Added
   const [recipientName, setRecipientName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [paymentReference, setPaymentReference] = useState("");
@@ -77,6 +77,38 @@ export default function BoxDetails() {
     load();
   }, [id]);
 
+  // Order Submission Logic
+  const handleConfirmOrder = async () => {
+    if (!buyerEmail || !buyerName) {
+        alert("Please fill in your details.");
+        return;
+    }
+
+    setBuying(true);
+    const { data, error } = await supabase
+        .from("orders")
+        .insert([{
+            buyer_name: buyerName,
+            buyer_email: buyerEmail,
+            recipient_name: recipientName,
+            recipient_email: recipientEmail, // Correctly linked to Supabase column
+            total_dzd: box?.price_dzd,
+            status: 'PENDING',
+            payment_method: paymentMethod,
+            payment_reference: paymentReference
+        }]);
+
+    if (error) {
+        console.error(error);
+        alert("Error placing order.");
+    } else {
+        setCheckoutOpen(false);
+        alert("Order placed successfully!");
+        navigate("/account");
+    }
+    setBuying(false);
+  };
+
   if (loading) return <main className="max-w-7xl mx-auto px-4 py-10"><p className="text-gray-600 italic">{i18n.language === 'en' ? 'Loading...' : 'جار التحميل...'}</p></main>;
   if (!box) return <main className="max-w-7xl mx-auto px-4 py-10"><p>{t('Box not found')}</p></main>;
 
@@ -87,7 +119,6 @@ export default function BoxDetails() {
       </Link>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Section: Box Details */}
         <section className="lg:col-span-7">
           <div className="rounded-[2.5rem] border border-gray-100 p-8 bg-white shadow-sm">
             <div className="h-64 rounded-3xl bg-gray-50 flex items-center justify-center overflow-hidden">
@@ -113,7 +144,6 @@ export default function BoxDetails() {
           </div>
         </section>
 
-        {/* Right Section: Purchase Card */}
         <aside className="lg:col-span-5">
           <div className="sticky top-24 rounded-[2.5rem] border-2 border-black p-8 bg-white shadow-2xl">
             <div className="text-sm font-bold text-gray-400 uppercase tracking-widest">
@@ -141,6 +171,7 @@ export default function BoxDetails() {
             </div>
 
             <div className="space-y-6">
+              {/* Info Sections */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
                   <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('label_buyer_email')}</label>
@@ -150,12 +181,21 @@ export default function BoxDetails() {
                   <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('label_buyer_name')}</label>
                   <input value={buyerName} onChange={(e) => setBuyerName(e.target.value)} className="mt-2 w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none focus:ring-2 focus:ring-red-600/20" />
                 </div>
+                
+                {/* NEW RECIPIENT SECTION */}
                 <div>
                   <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('label_recipient_name')}</label>
                   <input value={recipientName} onChange={(e) => setRecipientName(e.target.value)} className="mt-2 w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none focus:ring-2 focus:ring-red-600/20" />
                 </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs font-black uppercase tracking-widest text-gray-400">
+                    {t('label_recipient_email')}
+                  </label>
+                  <input value={recipientEmail} onChange={(e) => setRecipientEmail(e.target.value)} className="mt-2 w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none focus:ring-2 focus:ring-red-600/20"/>
+                </div>
               </div>
 
+              {/* Payment Select */}
               <div>
                 <label className="text-xs font-black uppercase tracking-widest text-gray-400">{t('label_payment_method')}</label>
                 <select className="mt-2 w-full rounded-2xl border border-gray-200 px-5 py-4 outline-none font-bold" onChange={(e) => setPaymentMethod(e.target.value)}>
@@ -164,21 +204,11 @@ export default function BoxDetails() {
                 </select>
               </div>
 
-              {paymentMethod === "BARIDPAY_QR" && (
-                <div className="p-6 rounded-3xl bg-red-50 border border-red-100">
-                  <p className="text-sm font-bold text-red-600 leading-relaxed">
-                    {i18n.language === 'en' 
-                      ? `Please pay ${box.price_dzd} DZD to our account and paste the transaction ID below.` 
-                      : `يرجى دفع ${box.price_dzd} دج إلى حسابنا ولصق رقم المعاملة أدناه.`}
-                  </p>
-                  <input value={paymentReference} onChange={(e) => setPaymentReference(e.target.value)} placeholder="Transaction Ref" className="mt-4 w-full rounded-xl border border-red-200 px-4 py-3 outline-none" />
-                </div>
-              )}
-
+              {/* Confirm Button */}
               <button
                 disabled={buying}
                 className="w-full py-5 rounded-2xl bg-black text-white font-black text-lg hover:bg-red-600 disabled:opacity-50 transition-all"
-                onClick={() => {/* Order Logic */}}
+                onClick={handleConfirmOrder}
               >
                 {buying ? '...' : t('btn_confirm_order')}
               </button>

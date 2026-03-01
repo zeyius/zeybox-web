@@ -30,7 +30,7 @@ const resources = {
       label_buyer_name: "Buyer name",
       label_buyer_email: "Buyer email *",
       label_recipient_name: "Recipient name",
-      label_recipient_email: "Recipient email",
+      label_recipient_email: "Recipient Email",
       label_payment_method: "Payment method *",
       label_ref: "Transaction reference *",
       btn_confirm_order: "Confirm order",
