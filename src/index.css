@@ -5,27 +5,30 @@ html, body, #root {
   height: 100%; 
 }
 
-/* 2. 3D & Carousel Animations */
-@keyframes carousel-3d {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(360deg); }
+/* 2. Swiper 3D Coverflow Core Styling */
+.swiper {
+  width: 100%;
+  padding-top: 50px;
+  padding-bottom: 50px;
 }
 
-@keyframes counter-spin {
-  from { transform: rotateY(0deg); }
-  to { transform: rotateY(-360deg); }
+.swiper-slide {
+  background-position: center;
+  background-size: cover;
+  width: 280px; /* Matches the width in your Home.tsx */
+  /* This ensures the 3D rotation looks smooth and high-quality */
+  backface-visibility: hidden; 
+  -webkit-box-reflect: below 10px linear-gradient(transparent, transparent, #0002);
 }
 
-.animate-carousel-3d {
-  animation: carousel-3d 25s linear infinite;
-  transform-style: preserve-3d;
+/* Premium Pagination dots - Zeybox Red */
+.swiper-pagination-bullet-active {
+  background: #ef4444 !important;
+  width: 20px !important;
+  border-radius: 5px !important;
 }
 
-.animate-counter-spin {
-  animation: counter-spin 25s linear infinite;
-}
-
-/* 3. Floating & Hover Animations */
+/* 3. Floating & Brand Animations */
 @keyframes wonderFloat {
   0%, 100% { 
     transform: translateY(0px) rotate(0deg); 
@@ -40,22 +43,39 @@ html, body, #root {
   filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.15));
 }
 
-/* Standard float for simpler elements */
-.animate-float { 
-  animation: wonderFloat 4s ease-in-out infinite; 
-}
-
 /* 4. Utility Classes */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
 .no-scrollbar {
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .snap-x {
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
+}
+
+/* Ensure the Swiper stage doesn't clip the 3D rotation */
+.swiper {
+  overflow: visible !important;
+  /* Perspective needs to be high on the container for the depth to look infinite */
+  perspective: 1500px; 
+}
+
+.swiper-coverflow {
+  overflow: visible !important;
+}
+
+.swiper-wrapper {
+  /* This prevents the "finite space" feeling by allowing 3D movement */
+  transform-style: preserve-3d; 
+}
+
+.swiper-slide {
+  /* This adds the Apple-style reflection without clipping */
+  -webkit-box-reflect: below 15px linear-gradient(transparent, transparent, rgba(0,0,0,0.1));
+  backface-visibility: hidden;
 }

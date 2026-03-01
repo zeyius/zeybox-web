@@ -5,10 +5,13 @@ import { useTranslation } from "react-i18next";
 
 // Swiper Imports
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay, Pagination, EffectFade } from 'swiper/modules';
+import { Autoplay, Pagination, EffectFade, EffectCoverflow } from 'swiper/modules';
+
+// Import All Necessary Swiper Styles
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/effect-fade';
+import 'swiper/css/effect-coverflow';
 
 type Box = {
   id: string;
@@ -16,6 +19,7 @@ type Box = {
   price_dzd: number;
   description: string | null;
   validity_days: number;
+  category: string; // Added category to type
 };
 
 const ORBIT_ITEMS = [
@@ -23,32 +27,17 @@ const ORBIT_ITEMS = [
   { image: null, emoji: "🍽️", labelKey: "Dining", color: "bg-red-50" },
   { image: null, emoji: "💆", labelKey: "Wellness", color: "bg-teal-50" },
   { image: null, emoji: "🏔️", labelKey: "Adventure", color: "bg-orange-50" },
+  { image: null, emoji: "🎁", labelKey: "Event", color: "bg-yellow-50" },
 ];
 
-const CATEGORIES = ["Weekend", "Restaurants", "Wellness", "Adventure"];
+// Added 'Event' to categories to match your new SQL structure
+const CATEGORIES = ["Wellness", "Restaurant", "Adventure", "Weekend", "Event"];
 
-// Carousel Content
 const HERO_SLIDES = [
-  {
-    image: "/images/hero1.png", 
-    titleEn: "The Promise of a Perfect Gift",
-    titleAr: "وعد بهدية مثالية",
-  },
-  {
-    image: "/images/hero2.png",
-    titleEn: "Unforgettable Memories",
-    titleAr: "ذكريات لا تُنسى",
-  },
-  {
-    image: "/images/hero3.png",
-    titleEn: "Experiences Made for You",
-    titleAr: "تجارب صُنعت لك",
-  },
-  {
-    image: "/images/hero4.png",
-    titleEn: "Discover Algeria Together",
-    titleAr: "اكتشفوا الجزائر معاً",
-  }
+  { image: "/images/hero1.png", titleEn: "Perfect Gift", titleAr: "هدية مثالية" },
+  { image: "/images/hero2.png", titleEn: "Memories", titleAr: "ذكريات" },
+  { image: "/images/hero3.png", titleEn: "For You", titleAr: "لك" },
+  { image: "/images/hero4.png", titleEn: "Algeria", titleAr: "الجزائر" }
 ];
 
 export default function Home() {
@@ -60,7 +49,7 @@ export default function Home() {
     const loadBoxes = async () => {
       const { data } = await supabase
         .from("boxes")
-        .select("id, name, price_dzd, description, validity_days")
+        .select("id, name, price_dzd, description, validity_days, category") // Added category to select
         .eq("is_active", true);
       setBoxes((data as Box[]) || []);
     };
@@ -72,9 +61,9 @@ export default function Home() {
   };
 
   return (
-    <main className="bg-white">
-      {/* TOP IMAGE CAROUSEL SECTION */}
-      <section className="w-full h-[450px] md:h-[550px] overflow-hidden">
+    <main className="bg-white overflow-x-hidden">
+      {/* 1. TOP IMAGE CAROUSEL */}
+      <section className="w-full h-[350px] md:h-[550px] overflow-hidden">
         <Swiper
           modules={[Autoplay, Pagination, EffectFade]}
           effect="fade"
@@ -86,20 +75,13 @@ export default function Home() {
           {HERO_SLIDES.map((slide, index) => (
             <SwiperSlide key={index}>
               <div className="relative w-full h-full">
-                {/* Overlay for text contrast */}
-                <div className="absolute inset-0 bg-black/20 z-10" />
-                
-                <img 
-                  src={slide.image} 
-                  alt="Zeybox Promo" 
-                  className="w-full h-full object-cover"
-                />
-
-                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
-                  <h2 className="text-white text-4xl md:text-6xl font-black uppercase italic tracking-tighter drop-shadow-2xl">
+                <div className="absolute inset-0 bg-black/30 z-10" />
+                <img src={slide.image} alt="Zeybox" className="w-full h-full object-cover" />
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6">
+                  <h2 className="text-white text-3xl md:text-6xl font-black uppercase italic tracking-tighter drop-shadow-2xl">
                     {i18n.language === 'en' ? slide.titleEn : slide.titleAr}
                   </h2>
-                  <div className="mt-6 h-1.5 w-24 bg-yellow-400 rounded-full shadow-lg" />
+                  <div className="mt-4 h-1 w-16 md:w-24 bg-yellow-400 rounded-full shadow-lg animate-pulse" />
                 </div>
               </div>
             </SwiperSlide>
@@ -107,132 +89,136 @@ export default function Home() {
         </Swiper>
       </section>
 
-      {/* EXISTING HERO SECTION */}
-      <section className="max-w-7xl mx-auto px-4 pt-12 pb-24 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="z-10">
-            <p className="inline-flex items-center gap-2 text-sm font-bold text-red-600 bg-red-50 px-4 py-2 rounded-full mb-6 italic">
+      {/* 2. HERO SECTION */}
+      <section className="max-w-7xl mx-auto px-4 pt-12 pb-16 md:pb-24">
+        <div className="flex flex-col lg:grid lg:grid-cols-2 gap-10 md:gap-16 items-center">
+          <div className="z-10 text-center lg:text-start">
+            <p className="inline-flex items-center gap-2 text-[10px] md:text-sm font-bold text-red-600 bg-red-50 px-4 py-2 rounded-full mb-6 italic animate-bounce">
               {t('hero_badge')}
             </p>
-            <h1 className="text-5xl md:text-7xl font-black leading-[1.1] tracking-tight text-black">
+            <h1 className="text-4xl md:text-7xl font-black leading-tight tracking-tight text-black">
               {i18n.language === 'en' ? (
                 <>Gift memories, <br /><span className="text-red-600 italic">not just things.</span></>
               ) : (
                 <>أهدِ ذكريات، <br /><span className="text-red-600 italic">ليس مجرد أشياء.</span></>
               )}
             </h1>
-            <p className="mt-6 text-xl text-gray-600 max-w-lg leading-relaxed font-medium">
+            <p className="mt-6 text-base md:text-xl text-gray-600 max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium">
               {t('hero_desc')}
             </p>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex justify-center lg:justify-start">
               <button 
                 onClick={scrollToExplorer}
-                className="px-10 py-5 bg-black text-white rounded-2xl font-bold hover:bg-red-600 transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-2"
+                className="w-full sm:w-auto px-10 py-4 bg-black text-white rounded-2xl font-bold hover:bg-red-600 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2"
               >
                 {t('btn_explore')} <span className={`text-xl ${i18n.language === 'ar' ? 'rotate-180' : ''}`}>↓</span>
               </button>
             </div>
           </div>
 
-          {/* 3D PERSPECTIVE STAGE */}
-          <div className="relative flex justify-center items-center h-[500px] [perspective:1200px]">
-            <div className="absolute w-[300px] h-[300px] bg-red-500/5 rounded-full blur-[120px] animate-pulse" />
-            
-            <div className="absolute inset-0 flex items-center justify-center [transform-style:preserve-3d] animate-carousel-3d">
-              {ORBIT_ITEMS.map((item, index) => {
-                const startRotation = (index * 360) / ORBIT_ITEMS.length;
-                return (
-                  <div
-                    key={item.labelKey}
-                    className="absolute [transform-style:preserve-3d]"
-                    style={{ 
-                      transform: `rotateY(${startRotation}deg) translateZ(280px)` 
-                    }}
-                  >
-                    <div className={`
-                      w-24 h-24 ${item.color} rounded-2xl shadow-xl 
-                      flex flex-col items-center justify-center 
-                      border border-white/80 backdrop-blur-sm
-                      animate-counter-spin overflow-hidden
-                    `}>
-                      {item.image ? (
-                        <img src={item.image} alt={item.labelKey} className="w-full h-full object-contain p-2" />
-                      ) : (
-                        <>
-                          <span className="text-3xl filter drop-shadow-sm">{item.emoji}</span>
-                          <span className="text-[9px] font-black uppercase mt-1 text-gray-500 tracking-tighter text-center px-1">
-                            {i18n.language === 'en' ? item.labelKey : (
-                              item.labelKey === "Weekend" ? "عطلة" :
-                              item.labelKey === "Dining" ? "مطاعم" :
-                              item.labelKey === "Wellness" ? "استرخاء" : "مغامرة"
-                            )}
-                          </span>
-                        </>
+          {/* 3. 3D SLIDER */}
+          <div className="relative h-[350px] md:h-[500px] w-full flex items-center justify-center [perspective:1000px]">
+            <div className="absolute w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-red-500/5 rounded-full blur-[80px] md:blur-[140px]" />
+            <Swiper
+              key={i18n.language}
+              dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
+              effect={'coverflow'}
+              grabCursor={true}
+              centeredSlides={true}
+              slidesPerView={'auto'}
+              loop={true}
+              autoplay={{ delay: 3000, disableOnInteraction: false }}
+              coverflowEffect={{
+                rotate: 35,
+                stretch: -20,
+                depth: 300,
+                modifier: 1,
+                slideShadows: false,
+              }}
+              modules={[EffectCoverflow, Autoplay]}
+              className="w-full py-12 !overflow-visible"
+            >
+              {ORBIT_ITEMS.map((item) => (
+                <SwiperSlide key={item.labelKey} style={{ width: '220px' }}>
+                  <div className={`
+                    w-full h-64 md:h-80 ${item.color} rounded-[2.5rem] md:rounded-[3rem] shadow-2xl 
+                    flex flex-col items-center justify-center 
+                    border border-white/80 backdrop-blur-md
+                    transition-all duration-500 hover:border-yellow-400
+                  `}>
+                    <span className="text-5xl md:text-7xl mb-4 md:mb-6 animate-float">{item.emoji}</span>
+                    <span className="text-[10px] md:text-sm font-black uppercase text-gray-700 tracking-[0.2em] text-center px-4">
+                      {i18n.language === 'en' ? item.labelKey : (
+                        item.labelKey === "Weekend" ? "عطلة" :
+                        item.labelKey === "Restaurant" ? "مطاعم" :
+                        item.labelKey === "Wellness" ? "استرخاء" : 
+                        item.labelKey === "Event" ? "فعاليات" : "مغامرة"
                       )}
-                    </div>
+                    </span>
                   </div>
-                );
-              })}
-            </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
           </div>
         </div>
       </section>
 
-      {/* BEST SELLERS & CATEGORY SLIDERS */}
-      <section ref={explorerRef} className="bg-gray-50 py-24 rounded-t-[4rem] shadow-[0_-20px_50px_rgba(0,0,0,0.02)]">
+      {/* 4. COLLECTIONS - CATEGORIZED GROUPING */}
+      <section ref={explorerRef} className="bg-gray-50 py-16 md:py-24 rounded-t-[3rem] md:rounded-t-[4rem] shadow-inner">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-end justify-between mb-16">
-            <div>
-              <h2 className="text-4xl font-black text-black uppercase tracking-tighter italic">
-                {t('section_collections')}
-              </h2>
-              <div className="h-2 w-24 bg-yellow-400 mt-2 rounded-full" />
-            </div>
+          <div className="mb-12">
+            <h2 className="text-3xl md:text-4xl font-black text-black uppercase tracking-tighter italic">
+              {t('section_collections')}
+            </h2>
+            <div className="h-1.5 w-16 bg-yellow-400 mt-2 rounded-full" />
           </div>
 
-          {CATEGORIES.map((cat) => (
-            <div key={cat} className="mb-20 last:mb-0">
-              <div className="flex items-center gap-4 mb-8">
-                <span className="bg-red-600 text-white font-black px-4 py-1 rounded-lg italic tracking-tighter">
-                  {t('label_new')}
-                </span>
-                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
-                  {i18n.language === 'en' ? cat : (
-                    cat === "Weekend" ? "عطلة نهاية الأسبوع" :
-                    cat === "Restaurants" ? "مطاعم" :
-                    cat === "Wellness" ? "عناية واسترخاء" : "مغامرة"
-                  )}
-                </h3>
-              </div>
-              
-              <div className="flex gap-8 overflow-x-auto pb-10 snap-x no-scrollbar">
-                {boxes.length === 0 ? (
-                  <div className="h-64 w-full bg-gray-200 animate-pulse rounded-[3rem]" />
-                ) : (
-                  boxes.map((b) => (
-                    <Link to={`/box/${b.id}`} key={b.id} className="min-w-[320px] md:min-w-[380px] snap-start group">
-                      <div className="bg-white rounded-[3rem] border border-gray-100 p-8 transition-all duration-500 hover:shadow-[0_30px_60px_rgba(0,0,0,0.08)] hover:-translate-y-2 relative overflow-hidden">
-                        <div className={`absolute top-6 ${i18n.language === 'ar' ? 'left-8' : 'right-8'} font-black text-red-600 text-sm italic`}>
-                          DZD
+          {/* Logic changed: Map through each category and filter boxes */}
+          {CATEGORIES.map((cat) => {
+            const categoryBoxes = boxes.filter(b => b.category === cat);
+            
+            // Skip rendering the section if no boxes exist for this category
+            if (categoryBoxes.length === 0) return null;
+
+            return (
+              <div key={cat} className="mb-16 last:mb-0">
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="bg-red-600 text-white font-black text-[10px] px-3 py-1 rounded-md italic">
+                    {t('label_new')}
+                  </span>
+                  <h3 className="text-xl md:text-2xl font-black text-gray-900 uppercase">
+                    {i18n.language === 'en' ? cat : (
+                      cat === "Wellness" ? "عناية واسترخاء" : 
+                      cat === "Restaurants" ? "مطاعم فاخرة" : 
+                      cat === "Adventure" ? "مغامرات" : 
+                      cat === "Weekend" ? "عطلة" : "مطاعم"
+                    )}
+                  </h3>
+                </div>
+                
+                <div className="flex gap-4 md:gap-8 overflow-x-auto pb-6 no-scrollbar snap-x -mx-4 px-4">
+                  {categoryBoxes.map((b) => (
+                    <Link to={`/box/${b.id}`} key={b.id} className="min-w-[260px] md:min-w-[350px] snap-center group">
+                      <div className="bg-white rounded-[2.5rem] border border-gray-100 p-6 md:p-8 transition-all duration-500 hover:shadow-xl hover:border-yellow-200 relative">
+                        <div className="h-40 md:h-52 rounded-[2rem] bg-gray-50 flex items-center justify-center mb-6">
+                          <img src="/images/box.png" className="w-24 md:w-32 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6 drop-shadow-lg" alt={b.name} />
                         </div>
-                        <div className="h-56 rounded-[2.5rem] bg-gray-50 flex items-center justify-center mb-8">
-                          <img src="/images/box.png" className="w-36 transition-transform duration-700 group-hover:scale-110 group-hover:rotate-6 drop-shadow-xl" alt={b.name} />
-                        </div>
-                        <h4 className="font-bold text-xl text-black">{b.name}</h4>
-                        <p className="text-gray-500 text-sm mt-3 leading-relaxed line-clamp-2">{b.description}</p>
-                        <div className="mt-8 flex items-center justify-between border-t border-gray-50 pt-6">
-                          <span className="text-2xl font-black text-black">{b.price_dzd.toLocaleString()}</span>
-                          <span className="bg-yellow-400 text-black text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest shadow-sm">
+                        <h4 className="font-bold text-lg md:text-xl text-black truncate">{b.name}</h4>
+                        <div className="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
+                          <span className="text-xl font-black text-black">
+                            {b.price_dzd.toLocaleString()} <span className="text-xs">DA</span>
+                          </span>
+                          <span className="bg-yellow-400 text-black text-[9px] font-black px-4 py-2 rounded-full uppercase tracking-widest group-hover:bg-red-600 group-hover:text-white transition-colors">
                             {t('btn_view_box')}
                           </span>
                         </div>
                       </div>
                     </Link>
-                  ))
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
     </main>
