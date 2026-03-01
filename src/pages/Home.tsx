@@ -9,9 +9,7 @@ import { Autoplay, Pagination, EffectFade, EffectCoverflow } from 'swiper/module
 
 // Import All Necessary Swiper Styles
 import 'swiper/css';
-import 'swiper/css/pagination';
-import 'swiper/css/effect-fade';
-import 'swiper/css/effect-coverflow';
+import 'swiper/css/bundle';
 
 type Box = {
   id: string;

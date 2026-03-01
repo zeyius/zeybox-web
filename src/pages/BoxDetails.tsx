@@ -38,7 +38,7 @@ export default function BoxDetails() {
   const [recipientEmail, setRecipientEmail] = useState(""); // Added
   const [recipientName, setRecipientName] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
-  const [paymentReference, setPaymentReference] = useState("");
+  const [paymentReference] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -85,7 +85,7 @@ export default function BoxDetails() {
     }
 
     setBuying(true);
-    const { data, error } = await supabase
+    const { error } = await supabase
         .from("orders")
         .insert([{
             buyer_name: buyerName,

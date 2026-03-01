@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { useNavigate, Link } from "react-router-dom"; // Added Link
+import { useNavigate} from "react-router-dom"; // Added Link
 import { useTranslation } from "react-i18next"; // Added i18n
 
 export default function Login() {
